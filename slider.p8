@@ -2,9 +2,9 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 -- board def
-board_w = 6
-board_h = 6
-board_margin = 16
+board_w = 8 -- first and last
+board_h = 8 --   are overflow
+board_margin = 0
 square_size = 16
 
 ---- shape types
@@ -31,7 +31,8 @@ shapes = {shape1,shape2,shape3}
 board={}
 
 function _init()
- add_piece(shapes[1],3,3,0)
+ --todo randomize
+ add_piece(shapes[1],1,1,1,0)
 end
 
 function _update()
@@ -55,10 +56,10 @@ function draw_board()
  end
 end
 
-function add_piece(s,x,y,rot)
+function add_piece(s,x,y,col,rot)
 	local inst={}
 	inst.shape=s
-	inst.col=1
+	inst.col=col
 	
 	for sx=1,s.w,1 do
 	 for sy=1,s.h,1 do
@@ -108,6 +109,8 @@ function move_u()
   -- clear bottom row
   board[x+((board_h-1)*board_w)]=nil
  end
+ 
+ spawn_piece(1)
 end
 
 function move_d()
@@ -119,6 +122,8 @@ function move_d()
   -- clear top row
   board[x]=nil
  end 
+ 
+ spawn_piece(0)
 end
 
 function move_l()
@@ -130,6 +135,8 @@ function move_l()
   -- clear right row
   board[y*board_w]=nil
  end
+ 
+ spawn_piece(3)
 end
 
 function move_r()
@@ -141,8 +148,34 @@ function move_r()
   -- clear left row
   board[((y-1)*board_w)+1]=nil
  end 
+ 
+ spawn_piece(2)
 end
 
+function spawn_piece(side)
+ local stype = flr(rnd(#shapes))+1
+ local scol = flr(rnd(2))
+ local srot = flr(rnd(2))
+ 
+ local spos=0
+ if(side==0 or side==1) then
+  -- top or bottom
+  spos = flr(rnd(board_w))+1
+ elseif(side==2 or side==3) then
+  -- left or right
+  spos = flr(rnd(board_h))+1
+ end
+ 
+ if side==0 then --top
+  --add_piece(shapes[stype],spos,1,scol,srot)
+ elseif side==1 then --bot
+  --add_piece(shapes[stype],spos,board_h,scol,srot)
+ elseif side==2 then --l
+  --add_piece(shapes[stype],1,spos,scol,srot)
+ elseif side==3 then --r
+  --add_piece(shapes[stype],board_w,spos,scol,srot)
+ end
+end
 __gfx__
 66666666666666665555555555555555444444444444444444444444444444444444444444444444ffffffffffffffffffffffcffffcfffff1fffcfcffffffff
 61111111111111165222222222222225ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcfff
